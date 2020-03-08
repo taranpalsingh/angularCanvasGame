@@ -35,8 +35,6 @@ export class GameService {
       this.imageFood = new Image();
 			this.imagePerson.src = CONFIG.imagePerson;
 			this.imageFood.src = CONFIG.imageFood;
-			// this.imagePerson.width = this.imageFood.width = 58;
-      // this.imagePerson.height = this.imageFood.height = 128;
       this.imagePerson.onload = () => {
         resolve();
       };
@@ -44,18 +42,25 @@ export class GameService {
   }
   
   
+  // sets all the requires values
   setValues(size){
 
+    // step size for each move
     this.playerStep = Math.ceil(CONFIG.playGroundWidth/size);
+    // sets the initial position of the person in the center.
     this.player.x = (size%2==0)? Math.ceil(this.playerStep * (Math.ceil(size/2))) : Math.ceil(this.playerStep * (Math.ceil(size/2) +1)) ;
     this.player.y = (size%2==0)? Math.ceil(this.playerStep * (Math.ceil(size/2))) : Math.ceil(this.playerStep * (Math.ceil(size/2) +1)) ;
-    // this.player.y = Math.ceil(this.playerStep * (Math.ceil(size/2) +1));
+    
+    // size of the icon
     this.playerIcon = {
       width: (size%2==0)? Math.ceil(CONFIG.playGroundWidth/size): Math.ceil(CONFIG.playGroundWidth/size),
       height: Math.ceil(CONFIG.playGroundWidth/size),
     };
+    
+    // this creates random coordinates for the food icons
     this.createCoordinates(size);
   }
+
 
   startGameLoop(size) {
   
@@ -64,14 +69,13 @@ export class GameService {
     this.gameLoop = setInterval(() => {
 			this.suffleProperties();
 			this.cleanGround();
-      // this.createObstacles();
-			// this.moveObstacles();
 			this.createPlayer();
       this.createFood();
       this.detectCollision();
 		}, 10);
   }
   
+  // creates player icon image
   createPlayer(): void {
     this.context.drawImage(
 			this.imagePerson,
@@ -80,6 +84,7 @@ export class GameService {
     );
 	}
 
+  // creates food icon images
 	createFood(): void {
     this.foodCoordinates.forEach((coordinate)=>{
       this.context.drawImage(
@@ -90,11 +95,12 @@ export class GameService {
     })
   }
 
+  // creates random coordinates for food icons  
   createCoordinates(size): void {
     for(let i=0; i<size; i++){
-      // 50 is a magic number, replace this.
       let goAhead = true;
       while(goAhead){
+        // creating random coordinates using Math.random()
         let coordinate = [Math.ceil((Math.random()*(this.width/this.playerStep)) - 1)*this.playerStep, Math.ceil((Math.random()*(this.width/this.playerStep)) -1)*this.playerStep];  
         if(!this.coordinatesExists(coordinate) && (coordinate[0] != this.player.x && coordinate[1] != this.player.y)){
           this.foodCoordinates.push(coordinate);
@@ -103,15 +109,6 @@ export class GameService {
       }
     }
   }
-
-	animationFrame(n: number): boolean {
-		if ((this.frameNumber / n) % 1 === 0) { return true; }
-		return false;
-	}
-
-	suffleProperties(): void {
-		this.frameNumber += 1;
-	}
 
   moveUp(){
     if (this.player.y <= 0) {
@@ -151,8 +148,8 @@ export class GameService {
     this.moves++;
   }
 
-  detectCollision(){
-    
+  // detects whenever the person hits the food icon
+  detectCollision(){  
     this.foodCoordinates.forEach((coordinate)=>{
       if(this.player.x === coordinate[0] && this.player.y === coordinate[1]){
         this.coordinatesRemove(coordinate);
@@ -165,9 +162,6 @@ export class GameService {
     }
   }
 
-	cleanGround(): void {
-		this.context.clearRect(0, 0, CONFIG.playGroundWidth, CONFIG.playGroundHeight);
-	}
 
   // returns true if the coordinates already exists in foodCoordinates array.
   coordinatesExists(search) {
@@ -189,35 +183,18 @@ export class GameService {
 		});    
   }
   
+  // clears the canvas
+	cleanGround(): void {
+		this.context.clearRect(0, 0, CONFIG.playGroundWidth, CONFIG.playGroundHeight);
+  }
+  
+	animationFrame(n: number): boolean {
+		if ((this.frameNumber / n) % 1 === 0) { return true; }
+		return false;
+	}
 
-
-	// detectCrash(obstacle: Obstacles ): void {
-
-	// 	const componentLeftSide = obstacle.x;
-	// 	const componentRightSide = obstacle.x + obstacle.width;
-	// 	const componentTop = obstacle.y;
-	// 	const componentBottom = obstacle.y + obstacle.height;
-
-	// 	const carRightSide = this.player.x + this.playerIcon.width;
-	// 	const carLeftSide = this.player.x;
-	// 	const carTop = this.player.y;
-	// 	const carBottom = this.player.y + this.playerIcon.height;
-
-	// 	if ((
-	// 			(carRightSide > componentLeftSide) && (carTop < componentBottom)
-	// 		) && (
-	// 			(carLeftSide < componentRightSide) && (carTop < componentBottom)
-	// 		) && (
-	// 			(carRightSide > componentLeftSide) && (carBottom > componentTop)
-	// 		) && (
-	// 			(carLeftSide < componentRightSide) && (carBottom > componentTop)
-	// 		)
-	// 	) {
-	// 		clearInterval(this.gameLoop);
-	// 		alert('Game Over');
-	// 		window.location.reload();
-	// 	}
-	// }
-
+	suffleProperties(): void {
+		this.frameNumber += 1;
+	}
 
 }
